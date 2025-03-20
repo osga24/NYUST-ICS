@@ -544,7 +544,7 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 系統會嘗試識別標準格式的課表，但如果您的課表格式特殊或有手動修改，可能會導致識別錯誤。請確保上傳的是從校務系統下載的原始課表。
+							A: 系統會嘗試識別標準格式的課表，但如果您的課表格式特殊或有手動修改，可能會導致識別錯誤。請確保上傳的是從單一下載的原始課表。
 						</p>
 					</div>
 
@@ -560,7 +560,7 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 目前系統不支持直接編輯識別後的課程資訊。如需編輯，建議先匯出為 Excel，在 Excel 中編輯後再手動添加到您的行事曆中。
+							A: 目前系統不支持直接編輯識別後的課程資訊。如需編輯，建議嘗試按照原 DOCX 的檔案進行編輯，並且嘗試系統是否可以讀取課程。
 						</p>
 					</div>
 
@@ -576,7 +576,7 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 在課表識別成功後，頁面會顯示學期設置區域，您可以在那裡調整學期的開始日期和結束日期。
+							A: 在課表識別成功後，頁面會顯示學期設置區域，目前是由系統預設雲科本學期的開始時間以及結束時間，會在每次學期結束後手動更新，如果沒有的話請提醒我🥲。
 						</p>
 					</div>
 
@@ -592,7 +592,7 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 目前系統僅根據課表生成課程行事曆，不包含假期或特殊日期。您需要手動在行事曆中添加這些信息。
+							A: 目前系統僅根據課表生成課程行事曆，不包含假期或特殊日期。需要自行將假日手動移除，日後（可能）會更新，如果想一同協作，歡迎<a href='https://osga.dev/contact' className='text-teal-600 hover:text-teal-700'>聯絡我</a>。
 						</p>
 					</div>
 
@@ -608,7 +608,23 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 不會。本工具完全在您的瀏覽器中運行，所有文件處理都在您的本地設備上進行，不會將您的資料上傳到任何伺服器。
+							A: 不會。本工具完全在您的瀏覽器中運行，所有文件處理都在本地設備上進行，不會將資料上傳到任何伺服器。
+						</p>
+					</div>
+
+					<div>
+						<h3 style={{
+							fontWeight: '500',
+							fontSize: '1.125rem',
+							color: yuntechTheme.gray[800],
+							margin: '0 0 0.25rem 0'
+						}}>Q: 滷肉飯拌還不拌？</h3>
+						<p style={{
+							marginTop: '0.25rem',
+							color: yuntechTheme.gray[700],
+							lineHeight: 1.6
+						}}>
+							A: 不拌，跟咖哩一樣，但是這問題希望明年開展營可以再問一次長官們。
 						</p>
 					</div>
 				</div>

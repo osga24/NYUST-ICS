@@ -14,13 +14,12 @@ import SemesterPicker from '../components/SemesterPicker';
 import { FileText, Calendar, FileSpreadsheet, Upload, Info, CheckCircle, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
-// 雲科大主題配色
 const yuntechTheme = {
-	primary: '#009393',     // 主要綠松色
-	secondary: '#007575',   // 深綠松色
-	light: '#4FC3C3',       // 淺綠松色
-	ultraLight: '#E6F7F7',  // 極淺綠松背景
-	accent: '#E6F7F7',      // 點綴色
+	primary: '#009393',
+	secondary: '#007575',
+	light: '#4FC3C3',
+	ultraLight: '#E6F7F7',
+	accent: '#E6F7F7',
 	white: '#ffffff',
 	gray: {
 		50: '#f8f9fa',
@@ -203,34 +202,22 @@ export default function Home() {
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				style={{
-					textAlign: 'center',
-					marginBottom: '2rem'
-				}}
+				className="text-center mb-8"
 			>
-				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+				<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-3 mb-4">
 					<Image
 						src="/NYUST.svg"
 						alt="雲科大校徽"
 						width={60}
 						height={60}
-						style={{ marginRight: '1rem' }}
+						className="w-12 h-12 sm:w-16 sm:h-16"
 					/>
-					<h1 style={{
-						fontSize: '2.5rem',
-						fontWeight: 'bold',
-						color: yuntechTheme.primary,
-						margin: 0
-					}}>
+					<h1 className="text-3xl sm:text-4xl font-bold text-primary m-0">
 						雲科大課表轉換工具
 					</h1>
 				</div>
-				<p style={{
-					marginTop: '0.5rem',
-					color: yuntechTheme.gray[600],
-					fontSize: '1.125rem'
-				}}>
-					輕鬆將 DOCX 課表轉換為 ICS 行事曆或 Excel 表格
+				<p className="mt-2 text-gray-600 text-xs sm:text-lg">
+					輕鬆將 DOCX 課表轉換為 ICS 行事曆，填滿你的行事曆！
 				</p>
 			</motion.div>
 

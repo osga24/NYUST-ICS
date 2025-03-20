@@ -30,15 +30,15 @@ export default function RootLayout({
         style={{ overscrollBehaviorX: "auto" }}
       >
         <Navbar
-          authorName="OsGa"
-          githubUrl="https://github.com/OsGa"
+          authorName="OsGa.dev"
+		  githubUrl = "https://github.com/osga24/NYUST-Calendar-Maker"
         />
         <main>
           {children}
         </main>
         <footer className="bg-white py-4 border-t border-gray-100">
           <div className="max-w-5xl mx-auto px-6 text-center text-sm text-gray-500">
-            <p>© 2025 OsGa. All Rights Reserved.</p>
+            <p>Made with 🗓️ by OsGa</p>
             <p className="mt-1">與校方無關，自行興趣製作</p>
           </div>
         </footer>
