@@ -38,8 +38,8 @@ export default function RootLayout({
         </main>
         <footer className="bg-white py-4 border-t border-gray-100">
           <div className="max-w-5xl mx-auto px-6 text-center text-sm text-gray-500">
-            <p>© Copyright OsGa 2025</p>
-            <p className="mt-1">與校方無關，自行製作</p>
+            <p>© 2025 OsGa. All Rights Reserved.</p>
+            <p className="mt-1">與校方無關，自行興趣製作</p>
           </div>
         </footer>
       </body>

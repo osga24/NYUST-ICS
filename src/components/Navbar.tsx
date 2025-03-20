@@ -9,12 +9,11 @@ interface NavbarProps {
   githubUrl?: string;
 }
 
-// 雲科大主題配色
 const yuntechTheme = {
-  primary: '#009393',     // 主要綠松色
-  secondary: '#007575',   // 深綠松色
-  light: '#4FC3C3',       // 淺綠松色
-  ultraLight: '#E6F7F7',  // 極淺綠松背景
+  primary: '#009393',
+  secondary: '#007575',
+  light: '#4FC3C3',
+  ultraLight: '#E6F7F7',
   white: '#ffffff',
   gray: {
     50: '#f8f9fa',
@@ -32,7 +31,7 @@ const yuntechTheme = {
 
 const Navbar: React.FC<NavbarProps> = ({
   authorName = "OsGa",
-  githubUrl = "https://github.com/OsGa"
+  githubUrl = "https://github.com/osga24/NYUST-Calendar-Maker"
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -40,7 +39,6 @@ const Navbar: React.FC<NavbarProps> = ({
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // 注意：移除了所有內聯媒體查詢，使用 className 替代
   return (
     <nav style={{
       backgroundColor: yuntechTheme.white,

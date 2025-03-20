@@ -17,12 +17,11 @@ import {
 	Settings
 } from 'lucide-react';
 
-// 雲科大主題配色
 const yuntechTheme = {
-	primary: '#009393',     // 主要綠松色
-	secondary: '#007575',   // 深綠松色
-	light: '#4FC3C3',       // 淺綠松色
-	ultraLight: '#E6F7F7',  // 極淺綠松背景
+	primary: '#009393',
+	secondary: '#007575',
+	light: '#4FC3C3',
+	ultraLight: '#E6F7F7',
 	white: '#ffffff',
 	gray: {
 		50: '#f8f9fa',
@@ -199,9 +198,7 @@ export default function GuidePage() {
 				}}>
 					<li style={{ marginBottom: '0.5rem' }}>上傳雲科大課表 DOCX 文件並自動識別課程資訊</li>
 					<li style={{ marginBottom: '0.5rem' }}>預覽識別後的課表內容</li>
-					<li style={{ marginBottom: '0.5rem' }}>設定學期起始日期和結束日期</li>
 					<li style={{ marginBottom: '0.5rem' }}>將課表匯出為 ICS 格式，便於導入到 Google 日曆、Outlook 或 Apple 日曆</li>
-					<li style={{ marginBottom: '0.5rem' }}>將課表匯出為 Excel 檔案，便於進一步編輯和處理</li>
 				</ul>
 				<p style={{ color: yuntechTheme.gray[700], lineHeight: 1.6 }}>
 					本工具完全在瀏覽器中運行，您的課表資料不會上傳到任何伺服器，保障您的隱私安全。
@@ -243,9 +240,10 @@ export default function GuidePage() {
 					color: yuntechTheme.gray[700],
 					listStyleType: 'disc'
 				}}>
-					<li style={{ marginBottom: '0.5rem' }}>現代化瀏覽器（Chrome、Firefox、Safari、Edge 等最新版本）</li>
-					<li style={{ marginBottom: '0.5rem' }}>雲科大課表 DOCX 文件（從校務系統下載）</li>
-					<li style={{ marginBottom: '0.5rem' }}>網絡連接（僅用於加載網頁，處理文件過程不需要網絡）</li>
+					<li style={{ marginBottom: '0.5rem' }}>瀏覽器（Chrome、Firefox、Safari、Edge 等最新版本）</li>
+					<li style={{ marginBottom: '0.5rem' }}>雲科大課表 DOCX 文件（單一系統登入你的帳號 ➡️  課程資訊 ➡️  學期選課資料➡️  下載該學期課表）</li>
+					<li style={{ marginBottom: '0.5rem' }}>一顆耐心的心，本工具目前只針對學期開始到學期結束做處理，國定假日還是會按照排程，如果需要的話需自行刪除行程</li>
+					<p style={{ marginBottom: '0.5rem' }} className='text-gray-500'>（原意是希望能提醒各位做可能需要做的作業，絕對不是我懶沒處理qq）</p>
 				</ul>
 				<div style={{
 					backgroundColor: '#FFF9DB',
@@ -263,7 +261,7 @@ export default function GuidePage() {
 								color: '#92400E',
 								margin: 0
 							}}>
-								注意：本工具專為雲科大課表格式設計，使用其他學校或格式的課表可能無法正確識別。
+								注意：本工具專為雲科大課表格式設計，使用其他學校或格式的課表無法正確識別。
 							</p>
 						</div>
 					</div>
@@ -305,7 +303,10 @@ export default function GuidePage() {
 					<li style={{ marginBottom: '1rem' }}>
 						<p style={{ fontWeight: '500', margin: '0 0 0.25rem 0' }}>準備課表 DOCX 文件</p>
 						<p style={{ color: yuntechTheme.gray[600], margin: 0 }}>
-							從雲科大校務系統下載您的課表 DOCX 文件。確保文件包含完整的課表信息。
+							從雲科大單一系統下載您的課表 DOCX 文件。確保文件包含完整的課表信息。
+						</p>
+						<p style={{ color: yuntechTheme.gray[600], margin: 0 }}>
+							（單一系統登入你的帳號 ➡️ 課程資訊 ➡️ 學期選課資料➡️ 下載該學期課表）
 						</p>
 					</li>
 					<li style={{ marginBottom: '1rem' }}>
@@ -402,8 +403,8 @@ export default function GuidePage() {
 						}}>
 							<li>打開 Google 日曆</li>
 							<li>點擊右上角的設置圖標，選擇「設置」</li>
-							<li>選擇「導入與導出」</li>
-							<li>選擇「導入」並上傳 ICS 文件</li>
+							<li>選擇「匯入與匯出」</li>
+							<li>選擇「匯入」並上傳 ICS 文件</li>
 						</ul>
 					</li>
 					<li style={{ marginBottom: '1rem' }}>
@@ -415,8 +416,9 @@ export default function GuidePage() {
 							listStyleType: 'disc'
 						}}>
 							<li>打開日曆應用</li>
-							<li>點擊「文件」 > 「導入」</li>
+							<li>點擊「檔案」 ➡️  「輸入」</li>
 							<li>選擇並導入 ICS 文件</li>
+							<li>選擇要導入的行程（建議新增一個行程）</li>
 						</ul>
 					</li>
 					<li style={{ marginBottom: '1rem' }}>
@@ -427,9 +429,10 @@ export default function GuidePage() {
 							color: yuntechTheme.gray[600],
 							listStyleType: 'disc'
 						}}>
-							<li>點擊「文件」 > 「打開和導出」 > 「導入/導出」</li>
+							<li>點擊「文件」➡️  「打開和導出」➡️  「導入/導出」</li>
 							<li>選擇「導入 iCalendar」</li>
 							<li>選擇並導入 ICS 文件</li>
+							<p className='text-gray-500'>（因為我沒過 Outlook 所以這段是 AI 生的，如果流程有誤歡迎到 github 發 issue 或<a href='https://osga.dev/contact' className='text-teal-600 hover:text-teal-700'>聯絡我</a>）</p>
 						</ul>
 					</li>
 				</ul>
