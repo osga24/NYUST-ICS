@@ -11,7 +11,7 @@ import { mergeContinuousCourses, defaultSemesterConfig } from '../utils/coursePr
 import CourseTable from '../components/CourseTable';
 import CourseList from '../components/CourseList';
 import SemesterPicker from '../components/SemesterPicker';
-import { FileText, Calendar, FileSpreadsheet, Upload, Info, CheckCircle, BookOpen } from 'lucide-react';
+import { FileText, Calendar, FileSpreadsheet, Upload, CheckCircle, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 const yuntechTheme = {
@@ -125,11 +125,14 @@ export default function Home() {
 			// 設置解析結果
 			setTableData(parsedData.tableData);
 
+			// 確保 structuredData 存在，否則設為空陣列
+			const structuredData = parsedData.structuredData ?? [];
+
 			// 確保課程數據已經過合併處理
-			const mergedCourses = mergeContinuousCourses(parsedData.structuredData);
+			const mergedCourses = mergeContinuousCourses(structuredData);
 			setCourses(mergedCourses);
 
-			console.log("原始課程數量:", parsedData.structuredData.length);
+			console.log("原始課程數量:", structuredData.length);
 			console.log("合併後課程數量:", mergedCourses.length);
 
 			// 輸出範例時間段，檢查合併是否成功
@@ -138,13 +141,15 @@ export default function Home() {
 				mergedCourses.slice(0, 5).forEach(course => {
 					console.log(`${course.day} ${course.timeSlot} - ${course.event} (${course.location})`);
 				});
+			} else {
+				console.warn("合併後的課程數據為空，請檢查解析邏輯");
 			}
 
 			setSuccess('文件解析成功！');
-			setIsProcessing(false);
 		} catch (err) {
 			console.error('處理文件時出錯:', err);
 			setError(err instanceof Error ? err.message : '處理文件時發生錯誤');
+		} finally {
 			setIsProcessing(false);
 		}
 	};
@@ -232,7 +237,6 @@ export default function Home() {
 					ref={dropAreaRef}
 					style={{
 						width: '100%',
-						backgroundColor: yuntechTheme.white,
 						borderRadius: '0.75rem',
 						boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 						transition: 'all 0.3s ease',
@@ -514,7 +518,7 @@ export default function Home() {
 					transition={{ duration: 0.5, delay: 0.2 }}
 					style={{ marginBottom: '2rem' }}
 				>
-					<SemesterPicker initialConfig={semesterConfig} />
+					<SemesterPicker />
 				</motion.div>
 			)}
 

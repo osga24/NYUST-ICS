@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { SemesterConfig } from '../utils/types';
-import { defaultSemesterConfig } from '../utils/courseProcessor';
 import { Calendar, Clock, AlertTriangle, Check, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -26,11 +24,7 @@ interface SimplifiedSemesterConfigJSON {
   }>;
 }
 
-interface SemesterPickerProps {
-  initialConfig?: SemesterConfig;
-}
-
-const SemesterPicker: React.FC<SemesterPickerProps> = ({ initialConfig = defaultSemesterConfig }) => {
+const SemesterPicker: React.FC = () => {
   const [currentSemester, setCurrentSemester] = useState<string>("");
   const [jsonConfig, setJsonConfig] = useState<SimplifiedSemesterConfigJSON | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -70,8 +64,8 @@ const SemesterPicker: React.FC<SemesterPickerProps> = ({ initialConfig = default
 
         const config: SimplifiedSemesterConfigJSON = await response.json();
         setJsonConfig(config);
-      } catch (error) {
-        console.error('加載學期設定時出錯:', error);
+      } catch (err) {
+        console.error('加載學期設定時出錯:', err);
         setError('加載學期設定時出錯');
       } finally {
         setLoading(false);

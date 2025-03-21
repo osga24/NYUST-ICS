@@ -1,6 +1,6 @@
 // src/utils/icsGenerator.ts
 import { CourseInfo, SemesterConfig } from './types';
-import { parseTimeSlot, getDayNumber, isSchoolDay, defaultSemesterConfig, formatDateString } from './courseProcessor';
+import { parseTimeSlot, getDayNumber, defaultSemesterConfig} from './courseProcessor';
 
 /**
  * 生成 ICS 文件內容
@@ -100,7 +100,7 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
     // 為每個上課日期創建單獨的事件（不使用重複規則）
     allDates.forEach((date, dateIndex) => {
       // 準備地點信息
-      let location = course.location.trim();
+      const location = course.location.trim();
 
       // 處理課程標題 - 包含地點信息
       let summary = course.event || '課程';

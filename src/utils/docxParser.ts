@@ -1,67 +1,85 @@
-// src/utils/docxParser.ts
-import * as mammoth from 'mammoth';
-import { ParsedTableData } from './types';
-import { formatCourseInfo, processScheduleData, convertToStructuredData, mergeContinuousCourses } from './courseProcessor';
+"use client";
+
+import { CourseInfo } from './types';
+import { processScheduleData, convertToStructuredData, mergeContinuousCourses } from './courseProcessor';
+
+// 在檔案內定義 ParsedTableData 介面
+export interface ParsedTableData {
+  tableData: string[][];
+  structuredData?: CourseInfo[];
+  error?: string;
+}
 
 /**
  * 從DOCX文件解析課程表數據
  */
 export const parseDocxFile = async (file: File): Promise<ParsedTableData> => {
-  // 讀取docx文件
-  const arrayBuffer = await file.arrayBuffer();
+  try {
+    // 動態導入 mammoth 以避免 SSR 問題
+    const mammoth = await import('mammoth');
 
-  // 使用mammoth轉換為HTML
-  const result = await mammoth.convertToHtml({
-    arrayBuffer,
-    preserveEmptyParagraphs: true,
-    ignoreEmptyParagraphs: false
-  });
-  const htmlContent = result.value;
+    // 讀取docx文件
+		const arrayBuffer = await file.arrayBuffer();
 
-  console.log("Mammoth轉換結果長度:", htmlContent.length);
+		const result = await mammoth.convertToHtml({
+			arrayBuffer
+		});
+		const htmlContent = result.value;
 
-  // 創建臨時DOM元素解析HTML
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
+    console.log("Mammoth轉換結果長度:", htmlContent.length);
 
-  // 查找文檔中的所有表格
-  const tables = doc.querySelectorAll('table');
+    // 創建臨時DOM元素解析HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
 
-  if (tables.length === 0) {
-    throw new Error('沒有找到表格，請確認文件格式');
-  }
+    // 查找文檔中的所有表格
+    const tables = doc.querySelectorAll('table');
 
-  console.log(`找到 ${tables.length} 個表格`);
-
-  // 嘗試找到最可能是課表的表格
-  let scheduleTable = tables[tables.length - 1]; // 預設使用最後一個表格
-  let maxCells = 0;
-
-  // 遍歷所有表格，找到包含最多單元格的表格
-  tables.forEach((table, index) => {
-    const cellCount = table.querySelectorAll('td, th').length;
-    console.log(`表格 ${index + 1} 包含 ${cellCount} 個單元格`);
-    if (cellCount > maxCells) {
-      maxCells = cellCount;
-      scheduleTable = table;
+    if (tables.length === 0) {
+      return {
+        tableData: [],
+        error: '沒有找到表格，請確認文件格式'
+      };
     }
-  });
 
-  // 處理表格數據
-  const extractedData = extractTableData(scheduleTable);
+    console.log(`找到 ${tables.length} 個表格`);
 
-  // 將表格數據轉換為結構化課程數據
-  const rawStructuredData = convertToStructuredData(extractedData);
+    // 嘗試找到最可能是課表的表格
+    let scheduleTable = tables[tables.length - 1]; // 預設使用最後一個表格
+    let maxCells = 0;
 
-  // 確保課程數據經過合併處理
-  const structuredData = mergeContinuousCourses(rawStructuredData);
+    // 遍歷所有表格，找到包含最多單元格的表格
+    tables.forEach((table, index) => {
+      const cellCount = table.querySelectorAll('td, th').length;
+      console.log(`表格 ${index + 1} 包含 ${cellCount} 個單元格`);
+      if (cellCount > maxCells) {
+        maxCells = cellCount;
+        scheduleTable = table;
+      }
+    });
 
-  console.log(`原始課程數: ${rawStructuredData.length}, 合併後課程數: ${structuredData.length}`);
+    // 處理表格數據
+    const extractedData = extractTableData(scheduleTable);
 
-  return {
-    tableData: extractedData,
-    structuredData
-  };
+    // 將表格數據轉換為結構化課程數據
+    const rawStructuredData = convertToStructuredData(extractedData);
+
+    // 確保課程數據經過合併處理
+    const structuredData = mergeContinuousCourses(rawStructuredData);
+
+    console.log(`原始課程數: ${rawStructuredData.length}, 合併後課程數: ${structuredData.length}`);
+
+    return {
+      tableData: extractedData,
+      structuredData
+    };
+  } catch (error) {
+    console.error('解析 DOCX 文件時出錯:', error);
+    return {
+      tableData: [],
+      error: `解析文件時出錯: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
 };
 
 /**

@@ -224,10 +224,11 @@ export const convertToStructuredData = (tableData: string[][]): CourseInfo[] => 
       const cellContent = row[j];
       if (cellContent && cellContent.trim() !== '') {
         // 解析課程信息
-        const location = cellContent.match(/【地點】([^\n]+)/) ?
-                        cellContent.match(/【地點】([^\n]+)/)[1].trim() : '';
-        const event = cellContent.match(/【行程】([^\n]+)/) ?
-                     cellContent.match(/【行程】([^\n]+)/)[1].trim() : '';
+        const locationMatch = cellContent.match(/【地點】([^\n]+)/);
+        const eventMatch = cellContent.match(/【行程】([^\n]+)/);
+
+        const location = locationMatch && locationMatch[1] ? locationMatch[1].trim() : '';
+        const event = eventMatch && eventMatch[1] ? eventMatch[1].trim() : '';
 
         // 如果至少有一個欄位有內容，添加到結構化數據
         if ((location && location !== '無') || event) {
