@@ -31,7 +31,7 @@ const yuntechTheme = {
 
 const Navbar: React.FC<NavbarProps> = ({
 	authorName = "OsGa.dev",
-	githubUrl = "https://github.com/osga24/NYUST-Calendar-Maker"
+	githubUrl = "https://github.com/osga24/NYUST-ICS"
 }) => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 

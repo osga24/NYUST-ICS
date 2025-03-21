@@ -34,7 +34,7 @@ export default function RootLayout({
 			>
 				<Navbar
 					authorName="OsGa.dev"
-					githubUrl="https://github.com/osga24/NYUST-Calendar-Maker"
+					githubUrl="https://github.com/osga24/NYUST-ICS"
 				/>
 				<main>{children}</main>
 				<footer className="bg-white py-4 border-t border-gray-100">

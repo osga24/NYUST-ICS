@@ -1,6 +1,6 @@
-<h1 style="display: flex; align-items: center;">
-  <img src="public/icon.png" alt="icon" width="60" height="60" style="margin-right: 10px;">
-  NYUST-ICS 雲科大課表轉換工具
+<h1 style="display: flex; align-items: center; gap: 10px;">
+  <img src="public/icon.png" alt="icon" width="40" height="40">
+  <span>NYUST-ICS 雲科大課表轉換工具</span>
 </h1>
 
 <div align="center">
