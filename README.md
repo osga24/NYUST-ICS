@@ -47,7 +47,7 @@ NYUST ICS 是一個專門為國立雲林科技大學學生設計的課表轉換�
 1. 進入[雲科大課表轉換工具](https://nyust-ics.osga.dev/guide)
 ![NYUST ICS](public/nyust-ics.png)
 2. 上傳你的課表文件（DOCX、Excel 等）
-![Upload](public/image/Upload.png)
+![Upload](public/image/upload.png)
 3. 系統會自動解析並顯示課表預覽，請確認是否有誤
 ![check](public/image/check.png)
 4. 點擊「生成 ICS 檔案」按鈕
