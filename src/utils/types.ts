@@ -13,6 +13,7 @@ export interface DateRange {
 export interface SemesterConfig {
   spring: DateRange;
   fall: DateRange;
+  holidays?: Holiday[];
 }
 
 export interface CourseInfo {
@@ -26,4 +27,13 @@ export interface ParsedTableData {
   tableData: string[][];
   structuredData?: CourseInfo[];
   error?: string;
+}
+
+export interface Holiday {
+  name: string;
+  date?: string;
+  range?: {
+    start: string;
+    end: string;
+  };
 }
