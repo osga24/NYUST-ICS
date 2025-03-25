@@ -157,7 +157,7 @@ export default function Home() {
 	/**
    * 導出 ICS 文件
    */
-	const handleExportICS = (): void => {
+	const handleExportICS = async (): Promise<void> => {
 		if (!courses || courses.length === 0) {
 			setError('沒有課程數據可導出');
 			return;
@@ -166,7 +166,7 @@ export default function Home() {
 		try {
 			// 確保導出前數據已合併，並傳入學期設定
 			const mergedCourses = mergeContinuousCourses(courses);
-			downloadICS(mergedCourses, semesterConfig);
+			await downloadICS(mergedCourses, semesterConfig);
 			setSuccess('ICS 行事曆匯出成功！');
 		} catch (err) {
 			console.error('導出ICS時出錯:', err);
