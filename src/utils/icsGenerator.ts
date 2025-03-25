@@ -1,16 +1,15 @@
 // src/utils/icsGenerator.ts
 import { CourseInfo, SemesterConfig } from './types';
 import { parseTimeSlot, getDayNumber, defaultSemesterConfig} from './courseProcessor';
-import { fetchHolidays, isHoliday } from './holidayAPI';
+import { fetchHolidays } from './holidayAPI';
 
 /**
  * 生成 ICS 文件內容
  */
 export const generateICS = async (courses: CourseInfo[], semesterConfig: SemesterConfig = defaultSemesterConfig): Promise<string> => {
-  // get holidays of the year
-  const springYear = semesterConfig.spring.start ? new Date(semesterConfig.spring.start).getFullYear() : new Date().getFullYear();
-  const fallYear = semesterConfig.fall.start ? new Date(semesterConfig.fall.start).getFullYear() : new Date().getFullYear();
-  const holidays = [...await fetchHolidays(springYear), ...await fetchHolidays(fallYear)];
+  // 獲取國定假日
+  const currentYear = new Date().getFullYear();
+  const holidays = await fetchHolidays(currentYear);
 
   // ICS 文件的基本頭部
   let icsContent = [
@@ -71,11 +70,26 @@ export const generateICS = async (courses: CourseInfo[], semesterConfig: Semeste
       while (currentDate <= endDate) {
         // 檢查是否是指定星期幾
         if (currentDate.getDay() === dayNumber) {
-          // check if it is a holiday
-          const holidayName = isHoliday(currentDate, holidays);
-          if (!holidayName) {
-            // if not a holiday, add class date
+          // Check if it's a national holiday
+          const dateString = currentDate.getFullYear().toString() +
+            String(currentDate.getMonth() + 1).padStart(2, '0') +
+            String(currentDate.getDate()).padStart(2, '0');
+          const holiday = holidays.find(h => h.date === dateString);
+          
+          if (holiday) {
+            console.log(`找到日期 ${dateString}:`, {
+              isHoliday: holiday.isHoliday,
+              description: holiday.description
+            });
+          }
+          
+          const isHoliday = holiday?.isHoliday && holiday?.description;
+          
+          // If not a national holiday, add class date
+          if (!isHoliday) {
             springDates.push(new Date(currentDate));
+          } else {
+            console.log(`排除假日: ${dateString} - ${holiday?.description}`);
           }
         }
         // 增加一天
@@ -96,11 +110,26 @@ export const generateICS = async (courses: CourseInfo[], semesterConfig: Semeste
       while (currentDate <= endDate) {
         // 檢查是否是指定星期幾
         if (currentDate.getDay() === dayNumber) {
-          // check if it is a holiday
-          const holidayName = isHoliday(currentDate, holidays);
-          if (!holidayName) {
-            // if not a holiday, add class date
+          // Check if it's a national holiday
+          const dateString = currentDate.getFullYear().toString() +
+            String(currentDate.getMonth() + 1).padStart(2, '0') +
+            String(currentDate.getDate()).padStart(2, '0');
+          const holiday = holidays.find(h => h.date === dateString);
+          
+          if (holiday) {
+            console.log(`找到日期 ${dateString}:`, {
+              isHoliday: holiday.isHoliday,
+              description: holiday.description
+            });
+          }
+          
+          const isHoliday = holiday?.isHoliday && holiday?.description;
+          
+          // If not a national holiday, add class date
+          if (!isHoliday) {
             fallDates.push(new Date(currentDate));
+          } else {
+            console.log(`排除假日: ${dateString} - ${holiday?.description}`);
           }
         }
         // 增加一天
@@ -111,7 +140,7 @@ export const generateICS = async (courses: CourseInfo[], semesterConfig: Semeste
     // 合併所有上課日期
     const allDates = [...springDates, ...fallDates].sort((a, b) => a.getTime() - b.getTime());
 
-    // 為每個上課日期創建單獨的事件
+    // 為每個上課日期創建單獨的事件（不使用重複規則）
     allDates.forEach((date, dateIndex) => {
       // 準備地點信息
       const location = course.location.trim();
@@ -130,7 +159,7 @@ export const generateICS = async (courses: CourseInfo[], semesterConfig: Semeste
       }
 
       // 生成唯一ID
-      const uid = `course-${dateIndex}-${new Date().getTime()}@yuntech.edu.tw`;
+      const uid = `course-${courses.indexOf(course)}-${dateIndex}-${new Date().getTime()}@yuntech.edu.tw`;
 
       // 當日的課程開始和結束時間
       const dtstart = formatDate(date, timeRange.start);
@@ -187,4 +216,4 @@ export const downloadICS = async (courses: CourseInfo[], semesterConfig: Semeste
   // 清理
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-}
+};
