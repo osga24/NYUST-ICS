@@ -9,6 +9,7 @@ interface DayData {
   isHoliday: boolean;
   description: string;
 }
+
 /**
  * fetch holidays from government open data platform
  * @param year search year
@@ -31,9 +32,9 @@ export const fetchHolidays = async (year: number): Promise<Holiday[]> => {
       throw new Error('Invalid response format');
     }
 
-    // filter holidays with description
+    // Filter out only national holidays with descriptions (excluding regular weekends)
     return data
-      .filter(day => day.isHoliday && day.description)
+      .filter(day => day.isHoliday && day.description.trim() !== '')
       .map(day => ({
         name: day.description,
         date: day.date
