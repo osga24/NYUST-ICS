@@ -1,11 +1,17 @@
 // src/utils/icsGenerator.ts
 import { CourseInfo, SemesterConfig } from './types';
 import { parseTimeSlot, getDayNumber, defaultSemesterConfig} from './courseProcessor';
+import { fetchHolidays, isHoliday } from './holidayAPI';
 
 /**
  * 生成 ICS 文件內容
  */
-export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfig = defaultSemesterConfig): string => {
+export const generateICS = async (courses: CourseInfo[], semesterConfig: SemesterConfig = defaultSemesterConfig): Promise<string> => {
+  // get holidays of the year
+  const springYear = semesterConfig.spring.start ? new Date(semesterConfig.spring.start).getFullYear() : new Date().getFullYear();
+  const fallYear = semesterConfig.fall.start ? new Date(semesterConfig.fall.start).getFullYear() : new Date().getFullYear();
+  const holidays = [...await fetchHolidays(springYear), ...await fetchHolidays(fallYear)];
+
   // ICS 文件的基本頭部
   let icsContent = [
     'BEGIN:VCALENDAR',
@@ -28,19 +34,19 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
   ].join('\r\n');
 
   // 為每個課程創建事件
-  courses.forEach((course, index) => {
+  for (const course of courses) {
     // 解析時間槽
     const timeRange = parseTimeSlot(course.timeSlot);
     if (!timeRange) {
       console.warn(`無法解析時間槽: ${course.timeSlot}`);
-      return;
+      continue;
     }
 
     // 獲取星期幾的數字
     const dayNumber = getDayNumber(course.day);
     if (dayNumber < 0) {
       console.warn(`無法解析星期: ${course.day}`);
-      return;
+      continue;
     }
 
     // 格式化日期和時間 (YYYYMMDDTHHMMSS)
@@ -65,8 +71,12 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
       while (currentDate <= endDate) {
         // 檢查是否是指定星期幾
         if (currentDate.getDay() === dayNumber) {
-          // 添加上課日期
-          springDates.push(new Date(currentDate));
+          // check if it is a holiday
+          const holidayName = isHoliday(currentDate, holidays);
+          if (!holidayName) {
+            // if not a holiday, add class date
+            springDates.push(new Date(currentDate));
+          }
         }
         // 增加一天
         currentDate.setDate(currentDate.getDate() + 1);
@@ -86,8 +96,12 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
       while (currentDate <= endDate) {
         // 檢查是否是指定星期幾
         if (currentDate.getDay() === dayNumber) {
-          // 添加上課日期
-          fallDates.push(new Date(currentDate));
+          // check if it is a holiday
+          const holidayName = isHoliday(currentDate, holidays);
+          if (!holidayName) {
+            // if not a holiday, add class date
+            fallDates.push(new Date(currentDate));
+          }
         }
         // 增加一天
         currentDate.setDate(currentDate.getDate() + 1);
@@ -97,7 +111,7 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
     // 合併所有上課日期
     const allDates = [...springDates, ...fallDates].sort((a, b) => a.getTime() - b.getTime());
 
-    // 為每個上課日期創建單獨的事件（不使用重複規則）
+    // 為每個上課日期創建單獨的事件
     allDates.forEach((date, dateIndex) => {
       // 準備地點信息
       const location = course.location.trim();
@@ -116,7 +130,7 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
       }
 
       // 生成唯一ID
-      const uid = `course-${index}-${dateIndex}-${new Date().getTime()}@yuntech.edu.tw`;
+      const uid = `course-${dateIndex}-${new Date().getTime()}@yuntech.edu.tw`;
 
       // 當日的課程開始和結束時間
       const dtstart = formatDate(date, timeRange.start);
@@ -140,7 +154,7 @@ export const generateICS = (courses: CourseInfo[], semesterConfig: SemesterConfi
         'END:VEVENT'
       ].join('\r\n');
     });
-  });
+  }
 
   // 添加ICS尾部
   icsContent += '\r\nEND:VCALENDAR';
@@ -157,7 +171,7 @@ export const downloadICS = async (courses: CourseInfo[], semesterConfig: Semeste
   }
 
   // 生成ICS內容
-  const icsContent = generateICS(courses, semesterConfig);
+  const icsContent = await generateICS(courses, semesterConfig);
 
   // 創建下載
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
@@ -173,4 +187,4 @@ export const downloadICS = async (courses: CourseInfo[], semesterConfig: Semeste
   // 清理
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-};
+}
