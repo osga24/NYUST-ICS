@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "雲科大課表轉換工具",
   description: "輕鬆將 DOCX 課表轉換為 ICS 行事曆，填滿你的行事曆！",
+  icons: {
+    icon: '/favicon.ico'
+  }
 };
 
 export default function RootLayout({

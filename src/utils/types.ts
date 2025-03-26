@@ -36,4 +36,6 @@ export interface Holiday {
     start: string;
     end: string;
   };
+  isHoliday?: boolean;
+  description?: string;
 }
