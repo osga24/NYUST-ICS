@@ -44,8 +44,8 @@ export const getDayNumber = (day: string): number => {
  */
 export const defaultSemesterConfig: SemesterConfig = {
   spring: {
-    start: new Date('2025-02-17'),
-    end: new Date('2025-06-22')
+    start: new Date('2025-09-08'),
+    end: new Date('2025-01-11')
   },
   fall: {
     start: null,
