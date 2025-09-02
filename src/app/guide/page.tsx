@@ -618,13 +618,13 @@ export default function GuidePage() {
 							fontSize: '1.125rem',
 							color: yuntechTheme.gray[800],
 							margin: '0 0 0.25rem 0'
-						}}>Q: 滷肉飯拌還不拌？</h3>
+						}}>Q: 咖哩飯拌還不拌？</h3>
 						<p style={{
 							marginTop: '0.25rem',
 							color: yuntechTheme.gray[700],
 							lineHeight: 1.6
 						}}>
-							A: 不拌，跟咖哩一樣，但是這問題希望明年開展營可以再問一次長官們。
+							A: 不拌，但是這問題希望明年開展營可以再問一次長官們。
 						</p>
 					</div>
 				</div>
