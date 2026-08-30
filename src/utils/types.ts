@@ -1,5 +1,24 @@
 // src/utils/types.ts
 
+export interface SemesterConfigJSON {
+  spring: {
+    start: string;
+    end: string;
+  };
+  fall?: {
+    start: string;
+    end: string;
+  };
+  holidays?: Array<{
+    name: string;
+    date?: string;
+    range?: {
+      start: string;
+      end: string;
+    };
+  }>;
+}
+
 export interface TimeRange {
   start: string;
   end: string;

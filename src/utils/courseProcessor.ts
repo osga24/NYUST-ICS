@@ -103,7 +103,6 @@ export const processScheduleData = (rawData: string[][]): string[][] => {
 
 		// 如果還是找不到，假設第一行就是表頭
 		if (dataStartIndex === -1 && rawData.length > 0) {
-			console.log("使用第一行作為表頭行");
 			dataStartIndex = 0;
 		}
 	}
