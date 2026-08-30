@@ -11,7 +11,7 @@ export const convertJsonToSemesterConfig = (json: SemesterConfigJSON): SemesterC
     start: json.fall?.start ? new Date(`${json.fall.start}T00:00:00+08:00`) : null,
     end: json.fall?.end ? new Date(`${json.fall.end}T23:59:59+08:00`) : null,
   },
-  schoolHolidays: json.schoolHolidays ?? [],
+  schoolHolidays: json.schoolHolidays?.map(h => h.date) ?? [],
 });
 
 export const loadSemesterConfig = async (): Promise<{

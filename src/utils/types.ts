@@ -1,5 +1,10 @@
 // src/utils/types.ts
 
+export interface SchoolHoliday {
+  date: string; // YYYY-MM-DD
+  name: string;
+}
+
 export interface SemesterConfigJSON {
   spring: {
     start: string;
@@ -17,7 +22,31 @@ export interface SemesterConfigJSON {
       end: string;
     };
   }>;
-  schoolHolidays?: string[];
+  schoolHolidays?: SchoolHoliday[];
+}
+
+export interface ExportSettings {
+  calendarName: string;
+  eventColor: string;
+  includeLocationInTitle: boolean;
+  alarmMinutes: number | null;
+}
+
+export const defaultExportSettings: ExportSettings = {
+  calendarName: '雲科大課表',
+  eventColor: '#009393',
+  includeLocationInTitle: true,
+  alarmMinutes: null,
+};
+
+export interface CustomScheduleEvent {
+  id: string;
+  title: string;
+  location: string;
+  days: number[]; // 0=Sun 1=Mon ... 6=Sat，對應 Date.getDay()
+  startTime: string; // HH:MM
+  endTime: string;   // HH:MM
+  repeat: 'weekly' | 'biweekly';
 }
 
 export interface TimeRange {
@@ -34,7 +63,7 @@ export interface SemesterConfig {
   spring: DateRange;
   fall: DateRange;
   holidays?: Holiday[];
-  schoolHolidays?: string[];
+  schoolHolidays?: string[]; // YYYY-MM-DD dates for filtering
 }
 
 export interface CourseInfo {

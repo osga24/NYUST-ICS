@@ -6,12 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { parseDocxFile } from "../utils/docxParser";
 import { downloadICS } from "../utils/icsGenerator";
 import { generateExcel } from "../utils/excelGenerator";
-import { CourseInfo, SemesterConfig, SemesterConfigJSON } from "../utils/types";
+import {
+  CourseInfo, SemesterConfig, SemesterConfigJSON,
+  ExportSettings, CustomScheduleEvent, defaultExportSettings,
+} from "../utils/types";
 import { loadSemesterConfig } from "../utils/semesterConfigLoader";
 import { yuntechTheme } from "../styles/theme";
 import CourseTable from "../components/CourseTable";
 import CourseList from "../components/CourseList";
 import SemesterPicker from "../components/SemesterPicker";
+import ExportSettingsPanel from "../components/ExportSettings";
+import ExcludedHolidays from "../components/ExcludedHolidays";
 import {
   FileText,
   Calendar,
@@ -33,7 +38,9 @@ export default function Home() {
   const [jsonConfig, setJsonConfig] = useState<SemesterConfigJSON | null>(null);
   const [configLoading, setConfigLoading] = useState<boolean>(true);
   const [configError, setConfigError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"table" | "list">("table");
+  const [exportSettings, setExportSettings] = useState<ExportSettings>(defaultExportSettings);
+  const [customEvents, setCustomEvents] = useState<CustomScheduleEvent[]>([]);
+  const [activeTab, setActiveTab] = useState<"table" | "list" | "holidays">("table");
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropAreaRef = useRef<HTMLDivElement>(null);
@@ -116,6 +123,8 @@ export default function Home() {
     setCourses(null);
     setError(null);
     setSuccess(null);
+    setCustomEvents([]);
+    setActiveTab("table");
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -123,7 +132,7 @@ export default function Home() {
     if (!courses || courses.length === 0) { setError("沒有課程數據可導出"); return; }
     if (!semesterConfig) { setError("學期設定尚未載入，請稍後再試"); return; }
     try {
-      await downloadICS(courses, semesterConfig);
+      await downloadICS(courses, semesterConfig, exportSettings, customEvents);
       setSuccess("ICS 行事曆匯出成功！");
     } catch (err) {
       setError(err instanceof Error ? err.message : "導出ICS失敗，請重試");
@@ -359,6 +368,22 @@ export default function Home() {
         </motion.div>
       )}
 
+      {/* 匯出設定與自訂行程 */}
+      {courses && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+        >
+          <ExportSettingsPanel
+            settings={exportSettings}
+            onSettingsChange={setExportSettings}
+            customEvents={customEvents}
+            onCustomEventsChange={setCustomEvents}
+          />
+        </motion.div>
+      )}
+
       {/* 課程資訊顯示區 */}
       {(tableData || courses) && (
         <motion.div
@@ -375,7 +400,7 @@ export default function Home() {
           }}
         >
           <div style={{ display: "flex", borderBottom: `1px solid ${yuntechTheme.gray[200]}` }}>
-            {(["table", "list"] as const).map((tab) => (
+            {(["table", "list", "holidays"] as const).map((tab) => (
               <button
                 key={tab}
                 style={{
@@ -392,7 +417,7 @@ export default function Home() {
                 }}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === "table" ? "課表預覽" : "課程列表"}
+                {tab === "table" ? "課表預覽" : tab === "list" ? "課程列表" : "排除假日"}
               </button>
             ))}
           </div>
@@ -400,6 +425,9 @@ export default function Home() {
           <div style={{ padding: "1rem" }}>
             {activeTab === "table" && tableData && <CourseTable tableData={tableData} />}
             {activeTab === "list" && courses && <CourseList courses={courses} />}
+            {activeTab === "holidays" && (
+              <ExcludedHolidays semesterConfig={semesterConfig} jsonConfig={jsonConfig} />
+            )}
           </div>
         </motion.div>
       )}

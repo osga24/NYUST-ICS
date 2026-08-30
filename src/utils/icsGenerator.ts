@@ -1,5 +1,12 @@
 // src/utils/icsGenerator.ts
-import { CourseInfo, SemesterConfig, DateRange } from './types';
+import {
+  CourseInfo,
+  SemesterConfig,
+  DateRange,
+  ExportSettings,
+  CustomScheduleEvent,
+  defaultExportSettings,
+} from './types';
 import { parseTimeSlot, getDayNumber, defaultSemesterConfig } from './courseProcessor';
 import { fetchHolidays } from './holidayAPI';
 
@@ -13,19 +20,19 @@ const formatICSDate = (date: Date, time: string): string => {
   return `${year}${month}${day}T${hours.padStart(2, '0')}${minutes.padStart(2, '0')}00`;
 };
 
+const toDateStr = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
 const isNationalHoliday = (date: Date, holidays: HolidayList): boolean => {
-  const dateString =
-    date.getFullYear().toString() +
+  const s = date.getFullYear().toString() +
     String(date.getMonth() + 1).padStart(2, '0') +
     String(date.getDate()).padStart(2, '0');
-  const h = holidays.find(d => d.date === dateString);
+  const h = holidays.find(d => d.date === s);
   return !!(h?.isHoliday && h?.description);
 };
 
-const isSchoolHoliday = (date: Date, schoolHolidays: string[]): boolean => {
-  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  return schoolHolidays.includes(dateString);
-};
+const isSchoolHoliday = (date: Date, schoolHolidays: string[]): boolean =>
+  schoolHolidays.includes(toDateStr(date));
 
 const getClassDatesInRange = (
   range: DateRange,
@@ -38,7 +45,6 @@ const getClassDatesInRange = (
   const dates: Date[] = [];
   const current = new Date(range.start);
   current.setHours(0, 0, 0, 0);
-
   const end = new Date(range.end);
   end.setHours(23, 59, 59, 999);
 
@@ -52,29 +58,102 @@ const getClassDatesInRange = (
     }
     current.setDate(current.getDate() + 1);
   }
-
   return dates;
+};
+
+const getCustomEventDates = (
+  event: CustomScheduleEvent,
+  semesterConfig: SemesterConfig,
+  holidays: HolidayList,
+  schoolHolidays: string[]
+): Date[] => {
+  const dates: Date[] = [];
+
+  for (const range of [semesterConfig.spring, semesterConfig.fall]) {
+    if (!range.start || !range.end) continue;
+
+    const end = new Date(range.end);
+    end.setHours(23, 59, 59, 999);
+
+    for (const day of event.days) {
+      // find first occurrence of this weekday in the range
+      const first = new Date(range.start);
+      first.setHours(0, 0, 0, 0);
+      while (first.getDay() !== day) first.setDate(first.getDate() + 1);
+
+      const interval = event.repeat === 'biweekly' ? 14 : 7;
+      const cur = new Date(first);
+      while (cur <= end) {
+        if (!isNationalHoliday(cur, holidays) && !isSchoolHoliday(cur, schoolHolidays)) {
+          dates.push(new Date(cur));
+        }
+        cur.setDate(cur.getDate() + interval);
+      }
+    }
+  }
+
+  return dates.sort((a, b) => a.getTime() - b.getTime());
+};
+
+const buildVEvent = (
+  uid: string,
+  dtstart: string,
+  dtend: string,
+  summary: string,
+  location: string,
+  description: string,
+  exportTimestamp: string,
+  settings: ExportSettings
+): string => {
+  const lines = [
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTART;TZID=Asia/Taipei:${dtstart}`,
+    `DTEND;TZID=Asia/Taipei:${dtend}`,
+    `SUMMARY:${summary}`,
+    `LOCATION:${location || '未指定地點'}`,
+    'TRANSP:OPAQUE',
+    `DESCRIPTION:${description}`,
+    `X-APPLE-CALENDAR-COLOR:${settings.eventColor}`,
+    'X-MICROSOFT-CDO-BUSYSTATUS:BUSY',
+    `CREATED:${exportTimestamp}`,
+  ];
+
+  if (settings.alarmMinutes !== null) {
+    lines.push(
+      'BEGIN:VALARM',
+      `TRIGGER:-PT${settings.alarmMinutes}M`,
+      'ACTION:DISPLAY',
+      'DESCRIPTION:課程提醒',
+      'END:VALARM'
+    );
+  }
+
+  lines.push('END:VEVENT');
+  return lines.join('\r\n');
 };
 
 export const generateICS = async (
   courses: CourseInfo[],
-  semesterConfig: SemesterConfig = defaultSemesterConfig
+  semesterConfig: SemesterConfig = defaultSemesterConfig,
+  exportSettings: ExportSettings = defaultExportSettings,
+  customEvents: CustomScheduleEvent[] = []
 ): Promise<string> => {
   const now = new Date();
   const currentYear = now.getFullYear();
 
-  // fetch both current and next year to cover fall semester spanning Jan of next year
-  const [currentYearHolidays, nextYearHolidays] = await Promise.allSettled([
+  const [cur, next] = await Promise.allSettled([
     fetchHolidays(currentYear),
     fetchHolidays(currentYear + 1),
   ]);
   const holidays = [
-    ...(currentYearHolidays.status === 'fulfilled' ? currentYearHolidays.value : []),
-    ...(nextYearHolidays.status === 'fulfilled' ? nextYearHolidays.value : []),
+    ...(cur.status === 'fulfilled' ? cur.value : []),
+    ...(next.status === 'fulfilled' ? next.value : []),
   ];
 
   const exportTimestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   const exportMs = now.getTime();
+  const schoolHolidays = semesterConfig.schoolHolidays ?? [];
 
   let icsContent = [
     'BEGIN:VCALENDAR',
@@ -82,7 +161,7 @@ export const generateICS = async (
     'PRODID:-//YunTech//Course Calendar//TW',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    'X-WR-CALNAME:雲科大課表',
+    `X-WR-CALNAME:${exportSettings.calendarName}`,
     'X-WR-TIMEZONE:Asia/Taipei',
     'BEGIN:VTIMEZONE',
     'TZID:Asia/Taipei',
@@ -96,6 +175,7 @@ export const generateICS = async (
     'END:VTIMEZONE',
   ].join('\r\n');
 
+  // Course events
   for (let courseIndex = 0; courseIndex < courses.length; courseIndex++) {
     const course = courses[courseIndex];
     const timeRange = parseTimeSlot(course.timeSlot);
@@ -104,39 +184,49 @@ export const generateICS = async (
     const dayNumber = getDayNumber(course.day);
     if (dayNumber < 0) continue;
 
-    const schoolHolidays = semesterConfig.schoolHolidays ?? [];
     const allDates = [
       ...getClassDatesInRange(semesterConfig.spring, dayNumber, holidays, schoolHolidays),
       ...getClassDatesInRange(semesterConfig.fall, dayNumber, holidays, schoolHolidays),
     ].sort((a, b) => a.getTime() - b.getTime());
 
     const location = course.location.trim();
-    const summary = location ? `[${location}] ${course.event || '課程'}` : (course.event || '課程');
+    const summary = exportSettings.includeLocationInTitle && location
+      ? `[${location}] ${course.event || '課程'}`
+      : (course.event || '課程');
     const description = location
       ? `雲科大課表 - ${course.event}\n地點: ${location}`
       : `雲科大課表 - ${course.event}`;
 
     allDates.forEach((date, dateIndex) => {
       const uid = `course-${courseIndex}-${dateIndex}-${exportMs}@yuntech.edu.tw`;
-      const dtstart = formatICSDate(date, timeRange.start);
-      const dtend = formatICSDate(date, timeRange.end);
+      icsContent += '\r\n' + buildVEvent(
+        uid,
+        formatICSDate(date, timeRange.start),
+        formatICSDate(date, timeRange.end),
+        summary, location, description,
+        exportTimestamp, exportSettings
+      );
+    });
+  }
 
-      icsContent += '\r\n' + [
-        'BEGIN:VEVENT',
-        `UID:${uid}`,
-        `DTSTART;TZID=Asia/Taipei:${dtstart}`,
-        `DTEND;TZID=Asia/Taipei:${dtend}`,
-        `SUMMARY:${summary}`,
-        `LOCATION:${location || '未指定地點'}`,
-        'TRANSP:OPAQUE',
-        `DESCRIPTION:${description}`,
-        'COLOR:black',
-        'X-APPLE-CALENDAR-COLOR:#000000',
-        'X-MICROSOFT-CDO-BUSYSTATUS:BUSY',
-        'X-MICROSOFT-CDO-IMPORTANCE:1',
-        `CREATED:${exportTimestamp}`,
-        'END:VEVENT',
-      ].join('\r\n');
+  // Custom events
+  for (let evIndex = 0; evIndex < customEvents.length; evIndex++) {
+    const ev = customEvents[evIndex];
+    const allDates = getCustomEventDates(ev, semesterConfig, holidays, schoolHolidays);
+    const location = ev.location.trim();
+    const summary = exportSettings.includeLocationInTitle && location
+      ? `[${location}] ${ev.title}`
+      : ev.title;
+
+    allDates.forEach((date, dateIndex) => {
+      const uid = `custom-${evIndex}-${dateIndex}-${exportMs}@yuntech.edu.tw`;
+      icsContent += '\r\n' + buildVEvent(
+        uid,
+        formatICSDate(date, ev.startTime),
+        formatICSDate(date, ev.endTime),
+        summary, location, ev.title,
+        exportTimestamp, exportSettings
+      );
     });
   }
 
@@ -146,17 +236,19 @@ export const generateICS = async (
 
 export const downloadICS = async (
   courses: CourseInfo[],
-  semesterConfig: SemesterConfig = defaultSemesterConfig
+  semesterConfig: SemesterConfig = defaultSemesterConfig,
+  exportSettings: ExportSettings = defaultExportSettings,
+  customEvents: CustomScheduleEvent[] = []
 ): Promise<void> => {
   if (!courses || courses.length === 0) throw new Error('沒有課程數據可導出');
 
-  const icsContent = await generateICS(courses, semesterConfig);
+  const icsContent = await generateICS(courses, semesterConfig, exportSettings, customEvents);
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'yuntech_courses.ics';
+  link.download = `${exportSettings.calendarName}.ics`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

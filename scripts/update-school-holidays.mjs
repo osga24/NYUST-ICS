@@ -104,7 +104,7 @@ async function main() {
   }
 
   const sorted = [...holidayDates].sort();
-  config.schoolHolidays = sorted;
+  config.schoolHolidays = sorted.map(date => ({ date, name: nameMap[date] }));
   writeFileSync(CONFIG_PATH, JSON.stringify(config, null, '\t'), 'utf-8');
 
   console.log(`\n找到 ${sorted.length} 個學校停課日：`);
