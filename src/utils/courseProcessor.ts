@@ -187,8 +187,9 @@ export const formatCourseInfo = (cellContent: string): string => {
 const parseEventContent = (eventStr: string): { className: string; courseName: string; teacher: string } => {
 	if (!eventStr) return { className: '', courseName: '', teacher: '' };
 
-	// 教師名稱：2–4 個字元 + 「老師」，位於字串結尾
-	const teacherMatch = eventStr.match(/(\S{2,4}老師)$/);
+	// 教師名稱：2–3 個中文字元 + 「老師」，位於字串結尾
+	// 注意：{2,4} 的 greedy 行為會在 3 字老師名稱時多吃課程名稱最後一字
+	const teacherMatch = eventStr.match(/([一-龥]{2,3}老師)$/);
 	const teacher = teacherMatch ? teacherMatch[1] : '';
 	const withoutTeacher = teacher ? eventStr.slice(0, -teacher.length).trim() : eventStr;
 
