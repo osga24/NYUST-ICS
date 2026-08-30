@@ -114,7 +114,6 @@ const buildVEvent = (
     `LOCATION:${location || '未指定地點'}`,
     'TRANSP:OPAQUE',
     `DESCRIPTION:${description}`,
-    `X-APPLE-CALENDAR-COLOR:${settings.eventColor}`,
     'X-MICROSOFT-CDO-BUSYSTATUS:BUSY',
     `CREATED:${exportTimestamp}`,
   ];
@@ -178,6 +177,7 @@ export const generateICS = async (
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${exportSettings.calendarName}`,
     'X-WR-TIMEZONE:Asia/Taipei',
+    `X-APPLE-CALENDAR-COLOR:${exportSettings.eventColor}`,
     'BEGIN:VTIMEZONE',
     'TZID:Asia/Taipei',
     'X-LIC-LOCATION:Asia/Taipei',
