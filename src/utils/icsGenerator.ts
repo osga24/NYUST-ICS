@@ -177,7 +177,6 @@ export const generateICS = async (
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${exportSettings.calendarName}`,
     'X-WR-TIMEZONE:Asia/Taipei',
-    `X-APPLE-CALENDAR-COLOR:${exportSettings.eventColor}`,
     'BEGIN:VTIMEZONE',
     'TZID:Asia/Taipei',
     'X-LIC-LOCATION:Asia/Taipei',

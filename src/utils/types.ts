@@ -42,14 +42,12 @@ export const defaultTitleFields: TitleFieldConfig[] = [
 
 export interface ExportSettings {
   calendarName: string;
-  eventColor: string;
   titleFields: TitleFieldConfig[];
   alarmMinutes: number | null;
 }
 
 export const defaultExportSettings: ExportSettings = {
   calendarName: '雲科大課表',
-  eventColor: '#009393',
   titleFields: defaultTitleFields,
   alarmMinutes: null,
 };
