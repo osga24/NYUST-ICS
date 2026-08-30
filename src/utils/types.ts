@@ -17,6 +17,7 @@ export interface SemesterConfigJSON {
       end: string;
     };
   }>;
+  schoolHolidays?: string[];
 }
 
 export interface TimeRange {
@@ -33,6 +34,7 @@ export interface SemesterConfig {
   spring: DateRange;
   fall: DateRange;
   holidays?: Holiday[];
+  schoolHolidays?: string[];
 }
 
 export interface CourseInfo {

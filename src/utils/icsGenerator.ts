@@ -22,7 +22,17 @@ const isNationalHoliday = (date: Date, holidays: HolidayList): boolean => {
   return !!(h?.isHoliday && h?.description);
 };
 
-const getClassDatesInRange = (range: DateRange, dayNumber: number, holidays: HolidayList): Date[] => {
+const isSchoolHoliday = (date: Date, schoolHolidays: string[]): boolean => {
+  const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return schoolHolidays.includes(dateString);
+};
+
+const getClassDatesInRange = (
+  range: DateRange,
+  dayNumber: number,
+  holidays: HolidayList,
+  schoolHolidays: string[]
+): Date[] => {
   if (!range.start || !range.end) return [];
 
   const dates: Date[] = [];
@@ -33,7 +43,11 @@ const getClassDatesInRange = (range: DateRange, dayNumber: number, holidays: Hol
   end.setHours(23, 59, 59, 999);
 
   while (current <= end) {
-    if (current.getDay() === dayNumber && !isNationalHoliday(current, holidays)) {
+    if (
+      current.getDay() === dayNumber &&
+      !isNationalHoliday(current, holidays) &&
+      !isSchoolHoliday(current, schoolHolidays)
+    ) {
       dates.push(new Date(current));
     }
     current.setDate(current.getDate() + 1);
@@ -90,9 +104,10 @@ export const generateICS = async (
     const dayNumber = getDayNumber(course.day);
     if (dayNumber < 0) continue;
 
+    const schoolHolidays = semesterConfig.schoolHolidays ?? [];
     const allDates = [
-      ...getClassDatesInRange(semesterConfig.spring, dayNumber, holidays),
-      ...getClassDatesInRange(semesterConfig.fall, dayNumber, holidays),
+      ...getClassDatesInRange(semesterConfig.spring, dayNumber, holidays, schoolHolidays),
+      ...getClassDatesInRange(semesterConfig.fall, dayNumber, holidays, schoolHolidays),
     ].sort((a, b) => a.getTime() - b.getTime());
 
     const location = course.location.trim();
