@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { CourseInfo } from '../utils/types';
+import { yuntechTheme } from '../styles/theme';
 
 interface CourseListProps {
   courses: CourseInfo[];
@@ -10,31 +11,53 @@ interface CourseListProps {
 const CourseList: React.FC<CourseListProps> = ({ courses }) => {
   if (!courses || courses.length === 0) return null;
 
+  const th: React.CSSProperties = {
+    border: `1px solid ${yuntechTheme.gray[200]}`,
+    padding: '0.5rem 0.75rem',
+    textAlign: 'left',
+    fontWeight: 600,
+    fontSize: '0.8125rem',
+    color: yuntechTheme.gray[600],
+    backgroundColor: yuntechTheme.gray[50],
+    whiteSpace: 'nowrap',
+  };
+  const td: React.CSSProperties = {
+    border: `1px solid ${yuntechTheme.gray[200]}`,
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    color: yuntechTheme.gray[700],
+    verticalAlign: 'middle',
+  };
+
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-lg font-semibold mb-4">課程清單（共 {courses.length} 堂課）</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">時間</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">星期</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">地點</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">行程</th>
+    <div style={{ overflowX: 'auto' }}>
+      <p style={{ fontSize: '0.875rem', color: yuntechTheme.gray[500], marginBottom: '0.75rem' }}>
+        共 <strong style={{ color: yuntechTheme.secondary }}>{courses.length}</strong> 堂課
+      </p>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+        <thead>
+          <tr>
+            <th style={th}>時間</th>
+            <th style={th}>星期</th>
+            <th style={th}>地點</th>
+            <th style={th}>課程名稱</th>
+            <th style={th}>班級</th>
+            <th style={th}>教師</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.map((course, index) => (
+            <tr key={index} style={{ backgroundColor: index % 2 === 0 ? yuntechTheme.white : yuntechTheme.gray[50] }}>
+              <td style={{ ...td, fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{course.timeSlot}</td>
+              <td style={{ ...td, whiteSpace: 'nowrap' }}>{course.day}</td>
+              <td style={td}>{course.location || '—'}</td>
+              <td style={{ ...td, fontWeight: 500, color: yuntechTheme.secondary }}>{course.courseName || course.event || '—'}</td>
+              <td style={{ ...td, color: yuntechTheme.gray[500] }}>{course.className || '—'}</td>
+              <td style={{ ...td, color: yuntechTheme.gray[500] }}>{course.teacher || '—'}</td>
             </tr>
-          </thead>
-          <tbody>
-            {courses.map((course, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                <td className="border border-gray-300 px-4 py-2">{course.timeSlot}</td>
-                <td className="border border-gray-300 px-4 py-2">{course.day}</td>
-                <td className="border border-gray-300 px-4 py-2">{course.location}</td>
-                <td className="border border-gray-300 px-4 py-2">{course.event}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

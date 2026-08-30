@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Settings, CalendarPlus } from 'lucide-react';
-import { ExportSettings, CustomScheduleEvent } from '../utils/types';
+import { Plus, Trash2, Settings, CalendarPlus, ChevronUp, ChevronDown } from 'lucide-react';
+import { ExportSettings, TitleFieldConfig, CustomScheduleEvent } from '../utils/types';
 import { yuntechTheme } from '../styles/theme';
 
 interface Props {
@@ -177,26 +177,15 @@ const ExportSettingsPanel: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* 標題格式 */}
-          <div>
-            <label style={labelStyle}>課程標題格式</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-              {[
-                { val: true, label: '[地點] 課程名稱' },
-                { val: false, label: '課程名稱' },
-              ].map(opt => (
-                <label key={String(opt.val)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem', color: yuntechTheme.gray[700] }}>
-                  <input
-                    type="radio"
-                    name="titleFormat"
-                    checked={settings.includeLocationInTitle === opt.val}
-                    onChange={() => updateSetting('includeLocationInTitle', opt.val)}
-                    style={{ accentColor: yuntechTheme.primary }}
-                  />
-                  {opt.label}
-                </label>
-              ))}
-            </div>
+          {/* 標題欄位 */}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={labelStyle}>行事曆標題欄位（可調整順序與顯示）</label>
+            <TitleFieldEditor
+              fields={settings.titleFields}
+              onChange={fields => updateSetting('titleFields', fields)}
+              primary={yuntechTheme.primary}
+              gray={yuntechTheme.gray}
+            />
           </div>
         </div>
       </div>
@@ -366,6 +355,84 @@ const ExportSettingsPanel: React.FC<Props> = ({
         )}
       </div>
     </motion.div>
+  );
+};
+
+interface TitleFieldEditorProps {
+  fields: TitleFieldConfig[];
+  onChange: (fields: TitleFieldConfig[]) => void;
+  primary: string;
+  gray: Record<number, string>;
+}
+
+const TitleFieldEditor: React.FC<TitleFieldEditorProps> = ({ fields, onChange, primary, gray }) => {
+  const toggle = (i: number) => {
+    const next = fields.map((f, idx) => idx === i ? { ...f, enabled: !f.enabled } : f);
+    onChange(next);
+  };
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= fields.length) return;
+    const next = [...fields];
+    [next[i], next[j]] = [next[j], next[i]];
+    onChange(next);
+  };
+
+  const FIELD_HINTS: Record<string, string> = {
+    location: '教室位置',
+    courseName: '課程名稱',
+    className: '開課班級',
+    teacher: '授課教師',
+  };
+
+  const preview = fields
+    .filter(f => f.enabled)
+    .map(f => f.field === 'location' ? '[教室]' : FIELD_HINTS[f.field])
+    .join(' ');
+
+  return (
+    <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '0.5rem' }}>
+        {fields.map((f, i) => (
+          <div key={f.field} style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.375rem 0.625rem',
+            backgroundColor: f.enabled ? `${primary}15` : gray[50],
+            borderRadius: '0.375rem',
+            border: `1px solid ${f.enabled ? primary : gray[200]}`,
+            transition: 'all 0.15s',
+          }}>
+            <input
+              type="checkbox"
+              checked={f.enabled}
+              onChange={() => toggle(i)}
+              style={{ accentColor: primary, cursor: 'pointer' }}
+            />
+            <span style={{ flex: 1, fontSize: '0.875rem', color: f.enabled ? primary : gray[500], fontWeight: f.enabled ? 600 : 400 }}>
+              {f.label}
+              <span style={{ fontWeight: 400, color: gray[400], marginLeft: '0.375rem', fontSize: '0.75rem' }}>
+                ({FIELD_HINTS[f.field]})
+              </span>
+            </span>
+            <button
+              onClick={() => move(i, -1)} disabled={i === 0}
+              style={{ background: 'none', border: 'none', cursor: i === 0 ? 'default' : 'pointer', color: i === 0 ? gray[300] : gray[500], padding: '0.125rem', lineHeight: 1 }}
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button
+              onClick={() => move(i, 1)} disabled={i === fields.length - 1}
+              style={{ background: 'none', border: 'none', cursor: i === fields.length - 1 ? 'default' : 'pointer', color: i === fields.length - 1 ? gray[300] : gray[500], padding: '0.125rem', lineHeight: 1 }}
+            >
+              <ChevronDown size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: '0.75rem', color: gray[500], margin: 0 }}>
+        預覽：<span style={{ color: gray[700], fontWeight: 500 }}>{preview || '（無欄位）'}</span>
+      </p>
+    </div>
   );
 };
 

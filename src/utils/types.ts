@@ -25,17 +25,32 @@ export interface SemesterConfigJSON {
   schoolHolidays?: SchoolHoliday[];
 }
 
+export type TitleField = 'location' | 'courseName' | 'className' | 'teacher';
+
+export interface TitleFieldConfig {
+  field: TitleField;
+  label: string;
+  enabled: boolean;
+}
+
+export const defaultTitleFields: TitleFieldConfig[] = [
+  { field: 'location', label: '教室', enabled: true },
+  { field: 'courseName', label: '課程名稱', enabled: true },
+  { field: 'className', label: '開課班級', enabled: false },
+  { field: 'teacher', label: '授課教師', enabled: false },
+];
+
 export interface ExportSettings {
   calendarName: string;
   eventColor: string;
-  includeLocationInTitle: boolean;
+  titleFields: TitleFieldConfig[];
   alarmMinutes: number | null;
 }
 
 export const defaultExportSettings: ExportSettings = {
   calendarName: '雲科大課表',
   eventColor: '#009393',
-  includeLocationInTitle: true,
+  titleFields: defaultTitleFields,
   alarmMinutes: null,
 };
 
@@ -69,8 +84,12 @@ export interface SemesterConfig {
 export interface CourseInfo {
   timeSlot: string;
   day: string;
-  location: string;
-  event: string;
+  location: string;   // resolved real location (may equal classroomCode if no map entry)
+  event: string;      // kept for compat; equals courseName when parsed
+  classroomCode: string;
+  className: string;
+  courseName: string;
+  teacher: string;
 }
 
 export interface ParsedTableData {

@@ -133,6 +133,21 @@ const buildVEvent = (
   return lines.join('\r\n');
 };
 
+const buildTitle = (course: CourseInfo, settings: ExportSettings): string => {
+  const parts: string[] = [];
+  for (const { field, enabled } of settings.titleFields) {
+    if (!enabled) continue;
+    const value = field === 'location' ? course.location
+      : field === 'courseName' ? course.courseName
+      : field === 'className' ? course.className
+      : field === 'teacher' ? course.teacher
+      : '';
+    if (!value) continue;
+    parts.push(field === 'location' ? `[${value}]` : value);
+  }
+  return parts.join(' ') || course.event || '課程';
+};
+
 export const generateICS = async (
   courses: CourseInfo[],
   semesterConfig: SemesterConfig = defaultSemesterConfig,
@@ -190,9 +205,7 @@ export const generateICS = async (
     ].sort((a, b) => a.getTime() - b.getTime());
 
     const location = course.location.trim();
-    const summary = exportSettings.includeLocationInTitle && location
-      ? `[${location}] ${course.event || '課程'}`
-      : (course.event || '課程');
+    const summary = buildTitle(course, exportSettings);
     const description = location
       ? `雲科大課表 - ${course.event}\n地點: ${location}`
       : `雲科大課表 - ${course.event}`;
@@ -214,9 +227,8 @@ export const generateICS = async (
     const ev = customEvents[evIndex];
     const allDates = getCustomEventDates(ev, semesterConfig, holidays, schoolHolidays);
     const location = ev.location.trim();
-    const summary = exportSettings.includeLocationInTitle && location
-      ? `[${location}] ${ev.title}`
-      : ev.title;
+    const locationEnabled = exportSettings.titleFields.find(f => f.field === 'location')?.enabled ?? true;
+    const summary = locationEnabled && location ? `[${location}] ${ev.title}` : ev.title;
 
     allDates.forEach((date, dateIndex) => {
       const uid = `custom-${evIndex}-${dateIndex}-${exportMs}@yuntech.edu.tw`;

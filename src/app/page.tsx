@@ -11,6 +11,7 @@ import {
   ExportSettings, CustomScheduleEvent, defaultExportSettings,
 } from "../utils/types";
 import { loadSemesterConfig } from "../utils/semesterConfigLoader";
+import { loadClassroomMap, resolveLocation } from "../utils/classroomLoader";
 import { yuntechTheme } from "../styles/theme";
 import CourseTable from "../components/CourseTable";
 import CourseList from "../components/CourseList";
@@ -73,7 +74,13 @@ export default function Home() {
         return;
       }
       setTableData(parsedData.tableData);
-      setCourses(parsedData.structuredData ?? []);
+      // Resolve classroom codes to real location names
+      const classroomMap = await loadClassroomMap();
+      const resolved = (parsedData.structuredData ?? []).map(c => ({
+        ...c,
+        location: resolveLocation(c.classroomCode, classroomMap),
+      }));
+      setCourses(resolved);
       setSuccess("文件解析成功！");
     } catch (err) {
       setError(err instanceof Error ? err.message : "處理文件時發生錯誤");
