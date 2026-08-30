@@ -3,31 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Github, Menu, X, Calendar, Book, Home } from 'lucide-react';
+import { yuntechTheme } from '../styles/theme';
 
 interface NavbarProps {
 	authorName?: string;
 	githubUrl?: string;
 }
-
-const yuntechTheme = {
-	primary: '#009393',
-	secondary: '#007575',
-	light: '#4FC3C3',
-	ultraLight: '#E6F7F7',
-	white: '#ffffff',
-	gray: {
-		50: '#f8f9fa',
-		100: '#f0f1f3',
-		200: '#e9ecef',
-		300: '#dee2e6',
-		400: '#ced4da',
-		500: '#adb5bd',
-		600: '#6c757d',
-		700: '#495057',
-		800: '#343a40',
-		900: '#212529',
-	}
-};
 
 const Navbar: React.FC<NavbarProps> = ({
 	authorName = "OsGa.dev",

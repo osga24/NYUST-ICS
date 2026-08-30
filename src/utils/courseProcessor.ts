@@ -44,8 +44,8 @@ export const getDayNumber = (day: string): number => {
  */
 export const defaultSemesterConfig: SemesterConfig = {
 	spring: {
-		start: new Date('2026-02-23'),
-		end: new Date('2026-06-28')
+		start: new Date('2026-09-07'),
+		end: new Date('2027-01-31')
 	},
 	fall: {
 		start: null,
@@ -103,7 +103,6 @@ export const processScheduleData = (rawData: string[][]): string[][] => {
 
 		// 如果還是找不到，假設第一行就是表頭
 		if (dataStartIndex === -1 && rawData.length > 0) {
-			console.log("使用第一行作為表頭行");
 			dataStartIndex = 0;
 		}
 	}
@@ -146,66 +145,59 @@ export const processScheduleData = (rawData: string[][]): string[][] => {
 
 /**
  * 格式化課程單元格內容
+ * 支援格式：[教室代碼] 班級 課程名稱教師老師
  */
 export const formatCourseInfo = (cellContent: string): string => {
-	// 如果單元格內容為空或只有空格，則返回空字符串
-	if (!cellContent || cellContent.trim() === '') {
-		return '';
+	if (!cellContent || cellContent.trim() === '') return '';
+
+	const trimmed = cellContent.trim();
+
+	// 新格式：[CODE] ...
+	const codeMatch = trimmed.match(/^\[([^\]]+)\]\s*/);
+	if (codeMatch) {
+		const classroomCode = codeMatch[1];
+		const rest = trimmed.slice(codeMatch[0].length).trim();
+		return `【地點】${classroomCode}\n【行程】${rest}`;
 	}
 
-	// 解析地點
+	// 舊格式：使用 (...) 括號標示地點
 	let location = '';
 	const locationMatch = cellContent.match(/\(([^)]+)\)/);
-	if (locationMatch) {
-		location = locationMatch[1]; // 獲取括號內的內容
-	}
+	if (locationMatch) location = locationMatch[1];
 
-	// 準備行程內容 - 整個課程信息但是去除地點部分
 	let event = cellContent.trim();
+	if (locationMatch) event = event.replace(locationMatch[0], '').trim();
 
-	// 移除地點信息
-	if (locationMatch) {
-		event = event.replace(locationMatch[0], '').trim();
-	}
+	const courseCodeMatch = event.match(/\b\d{4,5}\b/);
+	if (courseCodeMatch) event = event.replace(courseCodeMatch[0], '').trim();
 
-	// 移除課程代號
-	const courseCodePattern = /\b\d{4,5}\b/;
-	const courseCodeMatch = event.match(courseCodePattern);
+	const classNameMatch = event.match(/^([\w\s]+(系|班|中心|通識|資管|AI|一|二|三|四|五)[A-Z]?\s*)/);
+	if (classNameMatch) event = event.replace(classNameMatch[0], '').trim();
 
-	if (courseCodeMatch) {
-		// 移除課程代碼
-		event = event.replace(courseCodeMatch[0], '').trim();
-	}
-
-	// 移除可能的班級名稱（通常在開頭，包含特定關鍵字）
-	const classNamePattern = /^([\w\s]+(系|班|中心|通識|資管|AI|一|二|三|四|五)[A-Z]?\s*)/;
-	const classNameMatch = event.match(classNamePattern);
-	if (classNameMatch) {
-		event = event.replace(classNameMatch[0], '').trim();
-	}
-
-	// 移除可能的多餘空格
 	event = event.replace(/\s{2,}/g, ' ');
+	if (!event && !location) return cellContent.trim();
 
-	// 如果通過以上邏輯無法提取有效信息，返回原始內容
-	if (!event && !location) {
-		return cellContent.trim();
-	}
+	return `【地點】${location || '無'}\n【行程】${event.trim()}`;
+};
 
-	// 構造格式化輸出
-	let formattedInfo = '';
+/**
+ * 從格式化後的行程字串中解析班級、課程名稱、教師
+ * 輸入格式：「班級名稱 課程名稱教師老師」（班級與課程以空格分隔，教師緊接課程後）
+ */
+const parseEventContent = (eventStr: string): { className: string; courseName: string; teacher: string } => {
+	if (!eventStr) return { className: '', courseName: '', teacher: '' };
 
-	if (location) {
-		formattedInfo += `【地點】${location}\n`;
-	} else {
-		formattedInfo += `【地點】無\n`;
-	}
+	// 教師名稱：2–4 個字元 + 「老師」，位於字串結尾
+	const teacherMatch = eventStr.match(/(\S{2,4}老師)$/);
+	const teacher = teacherMatch ? teacherMatch[1] : '';
+	const withoutTeacher = teacher ? eventStr.slice(0, -teacher.length).trim() : eventStr;
 
-	if (event) {
-		formattedInfo += `【行程】${event.trim()}`;
-	}
+	// 第一個空格前為班級名稱
+	const spaceIdx = withoutTeacher.indexOf(' ');
+	const className = spaceIdx >= 0 ? withoutTeacher.slice(0, spaceIdx) : '';
+	const courseName = spaceIdx >= 0 ? withoutTeacher.slice(spaceIdx + 1).trim() : withoutTeacher;
 
-	return formattedInfo.trim();
+	return { className, courseName, teacher };
 };
 
 /**
@@ -213,37 +205,40 @@ export const formatCourseInfo = (cellContent: string): string => {
  */
 export const convertToStructuredData = (tableData: string[][]): CourseInfo[] => {
 	const courses: CourseInfo[] = [];
+	const DAY_LABELS = ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
 
-	// 從第二行開始
 	for (let i = 1; i < tableData.length; i++) {
 		const row = tableData[i];
-		const timeSlot = row[0]; // 時間欄
+		const timeSlot = row[0];
 
-		// 從第二列開始
 		for (let j = 1; j < row.length; j++) {
 			const cellContent = row[j];
-			if (cellContent && cellContent.trim() !== '') {
-				// 解析課程信息
-				const locationMatch = cellContent.match(/【地點】([^\n]+)/);
-				const eventMatch = cellContent.match(/【行程】([^\n]+)/);
+			if (!cellContent || cellContent.trim() === '') continue;
 
-				const location = locationMatch && locationMatch[1] ? locationMatch[1].trim() : '';
-				const event = eventMatch && eventMatch[1] ? eventMatch[1].trim() : '';
+			const locationMatch = cellContent.match(/【地點】([^\n]+)/);
+			const eventMatch = cellContent.match(/【行程】([^\n]+)/);
 
-				// 如果至少有一個欄位有內容，添加到結構化數據
-				if ((location && location !== '無') || event) {
-					courses.push({
-						timeSlot: timeSlot,
-						day: ['', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][j],
-						location: location === '無' ? '' : location,
-						event: event
-					});
-				}
-			}
+			const rawLocation = locationMatch ? locationMatch[1].trim() : '';
+			const rawEvent = eventMatch ? eventMatch[1].trim() : '';
+			const classroomCode = rawLocation !== '無' ? rawLocation : '';
+
+			if (!classroomCode && !rawEvent) continue;
+
+			const { className, courseName, teacher } = parseEventContent(rawEvent);
+
+			courses.push({
+				timeSlot,
+				day: DAY_LABELS[j] ?? '',
+				location: classroomCode, // resolved to real name in page.tsx via classroom map
+				event: courseName || rawEvent,
+				classroomCode,
+				className,
+				courseName,
+				teacher,
+			});
 		}
 	}
 
-	// 合併連續的課程
 	return mergeContinuousCourses(courses);
 };
 
@@ -306,7 +301,6 @@ export const mergeContinuousCourses = (courses: CourseInfo[]): CourseInfo[] => {
 
 		// 如果時間代碼是連續的，則將整個分組合併為一個課程
 		if (isSequentialCodes(timeCodes)) {
-			// 取第一個課程的時間代碼和開始時間
 			const firstCourse = group[0];
 			const lastCourse = group[group.length - 1];
 
@@ -314,14 +308,12 @@ export const mergeContinuousCourses = (courses: CourseInfo[]): CourseInfo[] => {
 			const lastTimeRange = parseTimeSlot(lastCourse.timeSlot);
 
 			if (firstTimeRange && lastTimeRange) {
-				// 合併時間描述
 				const firstCode = getTimeCode(firstCourse.timeSlot) || '';
 				const mergedTimeSlot = `${firstCode}. ${firstTimeRange.start} | ${lastTimeRange.end}`;
 
-				// 創建合併後的課程
 				const mergedCourse: CourseInfo = {
 					...firstCourse,
-					timeSlot: mergedTimeSlot
+					timeSlot: mergedTimeSlot,
 				};
 
 				mergedCourses.push(mergedCourse);

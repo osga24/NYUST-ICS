@@ -1,0 +1,224 @@
+{
+  "title": "使用說明",
+  "subtitle": "瞭解如何使用雲科大課表轉換工具",
+  "toc": [
+    { "id": "overview", "name": "概述" },
+    { "id": "requirements", "name": "系統需求" },
+    { "id": "how-to-use", "name": "使用步驟" },
+    { "id": "ics-export", "name": "匯出 ICS 行事曆" },
+    { "id": "excel-export", "name": "匯出 Excel" },
+    { "id": "faq", "name": "常見問題" }
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "title": "概述",
+      "icon": "HelpCircle",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "雲科大課表轉換工具是一個幫助雲科大學生將 DOCX 格式的課表轉換為 ICS 行事曆文件或 Excel 表格的在線工具。通過這個工具，你可以："
+        },
+        {
+          "type": "list",
+          "items": [
+            "上傳雲科大課表 DOCX 文件並自動識別課程資訊",
+            "預覽識別後的課表內容",
+            "將課表匯出為 ICS 格式，便於導入到 Google 日曆、Outlook 或 Apple 日曆"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "本工具完全在瀏覽器中運行，您的課表資料不會上傳到任何伺服器，保障您的隱私安全。"
+        }
+      ]
+    },
+    {
+      "id": "requirements",
+      "title": "系統需求",
+      "icon": "Settings",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "要使用本工具，您需要："
+        },
+        {
+          "type": "list",
+          "items": [
+            "瀏覽器（Chrome、Firefox、Safari、Edge 等最新版本）",
+            "雲科大課表 DOCX 文件（單一系統登入你的帳號 ➡️ 課程資訊 ➡️ 學期選課資料➡️ 下載該學期課表）",
+            "一顆耐心的心，本工具目前只針對學期開始到學期結束做處理，國定假日還是會按照排程，如果需要的話需自行刪除行程"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "（原意是希望能提醒各位做可能需要做的作業，絕對不是我懶沒處理qq）",
+          "className": "text-gray-500"
+        },
+        {
+          "type": "alert",
+          "style": "warning",
+          "content": "注意：本工具專為雲科大課表格式設計，使用其他學校或格式的課表無法正確識別。"
+        }
+      ]
+    },
+    {
+      "id": "how-to-use",
+      "title": "使用步驟",
+      "icon": "CheckCircle2",
+      "blocks": [
+        {
+          "type": "ordered-list",
+          "items": [
+            {
+              "title": "準備課表 DOCX 文件",
+              "content": "從雲科大單一系統下載您的課表 DOCX 文件。確保文件包含完整的課表信息。\n（單一系統登入你的帳號 ➡️ 課程資訊 ➡️ 學期選課資料➡️ 下載該學期課表）"
+            },
+            {
+              "title": "上傳文件",
+              "content": "在首頁點擊「選擇 DOCX 文件」按鈕，或將文件直接拖放到上傳區域。"
+            },
+            {
+              "title": "檢查識別結果",
+              "content": "上傳成功後，系統會自動識別課表內容並顯示預覽。您可以切換「課表預覽」和「課程列表」查看識別結果。"
+            },
+            {
+              "title": "設定學期時間（可選）",
+              "content": "如需調整學期的開始和結束日期，可在學期設定區域進行調整。"
+            },
+            {
+              "title": "導出文件",
+              "content": "根據需求點擊「匯出 ICS 行事曆」或「匯出 Excel」按鈕，將課表轉換為對應格式並下載。"
+            }
+          ]
+        },
+        {
+          "type": "alert",
+          "style": "tip",
+          "content": "提示：如果您的課表包含連續的課程（如同一門課連續多節），系統會自動合併為一個時間段。"
+        }
+      ]
+    },
+    {
+      "id": "ics-export",
+      "title": "匯出 ICS 行事曆",
+      "icon": "Calendar",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "ICS 是一種行事曆檔案格式，可導入到大多數行事曆應用中，包括 Google 日曆、Outlook 和 Apple 日曆。"
+        },
+        {
+          "type": "paragraph",
+          "content": "匯出後如何使用：",
+          "isStrong": true
+        },
+        {
+          "type": "nested-list",
+          "items": [
+            {
+              "title": "Google 日曆：",
+              "subItems": [
+                "打開 Google 日曆",
+                "點擊右上角的設置圖標，選擇「設置」",
+                "選擇「匯入與匯出」",
+                "選擇「匯入」並上傳 ICS 文件"
+              ]
+            },
+            {
+              "title": "Apple 日曆：",
+              "subItems": [
+                "打開日曆應用",
+                "點擊「檔案」 ➡️ 「輸入」",
+                "選擇並導入 ICS 文件",
+                "選擇要導入的行程（建議新增一個行程）"
+              ]
+            },
+            {
+              "title": "Outlook：",
+              "subItems": [
+                "點擊「文件」➡️ 「打開和導出」➡️ 「導入/導出」",
+                "選擇「導入 iCalendar」",
+                "選擇並導入 ICS 文件"
+              ],
+              "footer": "（因為我沒過 Outlook 所以這段是 AI 生的，如果流程有誤歡迎到 github 發 issue 或 [聯絡我](https://osga.dev/contact)）"
+            }
+          ]
+        },
+        {
+          "type": "alert",
+          "style": "success",
+          "content": "ICS 文件包含了課程名稱、時間、地點等資訊，並設置了重複規則，會在整個學期內按周重複。系統也會自動設置提醒，讓您不會錯過任何一堂課！"
+        }
+      ]
+    },
+    {
+      "id": "excel-export",
+      "title": "匯出 Excel",
+      "icon": "FileSpreadsheet",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "content": "除了 ICS 行事曆，您還可以將課表匯出為 Excel 格式。Excel 格式便於您進一步編輯和處理課表資料。"
+        },
+        {
+          "type": "paragraph",
+          "content": "Excel 文件包含：",
+          "isStrong": true
+        },
+        {
+          "type": "list",
+          "items": [
+            "原始課表格式的工作表",
+            "結構化的課程資訊工作表（包含課程名稱、時間、地點等）",
+            "方便您自定義排序、篩選和分析的格式"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "匯出的 Excel 文件可使用 Microsoft Excel、Google 試算表、LibreOffice Calc 等電子表格軟體打開。"
+        }
+      ]
+    },
+    {
+      "id": "faq",
+      "title": "常見問題",
+      "icon": "HelpCircle",
+      "blocks": [
+        {
+          "type": "faq",
+          "items": [
+            {
+              "q": "為什麼有些課程沒有被正確識別？",
+              "a": "系統會嘗試識別標準格式的課表，但如果您的課表格式特殊或有手動修改，可能會導致識別錯誤。請確保上傳的是從單一下載的原始課表。"
+            },
+            {
+              "q": "我可以編輯已識別的課程資訊嗎？",
+              "a": "目前系統不支持直接編輯識別後的課程資訊。如需編輯，建議嘗試按照原 DOCX 的檔案進行編輯，並且嘗試系統是否可以讀取課程。"
+            },
+            {
+              "q": "如何設置學期的開始和結束日期？",
+              "a": "在課表識別成功後，頁面會顯示學期設置區域，目前是由系統預設雲科本學期的開始時間以及結束時間，會在每次學期結束後手動更新，如果沒有的話請提醒我🥲。"
+            },
+            {
+              "q": "導出的 ICS 文件會包含假期或特殊日期嗎？",
+              "a": "目前系統僅根據課表生成課程行事曆，不包含假期或特殊日期。需要自行將假日手動移除，日後（可能）會更新，如果想一同協作，歡迎 [聯絡我](https://osga.dev/contact)。"
+            },
+            {
+              "q": "我的資料會被上傳到伺服器嗎？",
+              "a": "不會。本工具完全在您的瀏覽器中運行，所有文件處理都在本地設備上進行，不會將資料上傳到任何伺服器。"
+            },
+            {
+              "q": "為什麼我的 iPhone 沒辦法開啟 ics？",
+              "a": "請使用 safari 進行下載開啟，即可直接匯入"
+            },
+            {
+              "q": "咖哩飯拌還不拌？",
+              "a": "不拌，但是這問題希望明年開展營可以再問一次長官們。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
