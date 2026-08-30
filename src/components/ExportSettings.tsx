@@ -22,15 +22,6 @@ const ALARM_OPTIONS = [
   { label: '30 分鐘前', value: 30 },
   { label: '1 小時前', value: 60 },
 ];
-const COLOR_PRESETS = [
-  { label: '雲科綠', value: '#009393' },
-  { label: '藍', value: '#3B82F6' },
-  { label: '綠', value: '#16A34A' },
-  { label: '紅', value: '#EF4444' },
-  { label: '紫', value: '#8B5CF6' },
-  { label: '橙', value: '#F97316' },
-  { label: '灰', value: '#6B7280' },
-];
 
 interface FormState {
   title: string;
@@ -148,33 +139,6 @@ const ExportSettingsPanel: React.FC<Props> = ({
                 </option>
               ))}
             </select>
-          </div>
-
-          {/* 事件顏色 */}
-          <div>
-            <label style={labelStyle}>事件顏色</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', alignItems: 'center' }}>
-              {COLOR_PRESETS.map(c => (
-                <button
-                  key={c.value}
-                  title={c.label}
-                  onClick={() => updateSetting('eventColor', c.value)}
-                  style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    backgroundColor: c.value, border: 'none', cursor: 'pointer',
-                    outline: settings.eventColor === c.value ? `3px solid ${yuntechTheme.gray[700]}` : '2px solid transparent',
-                    outlineOffset: 1,
-                  }}
-                />
-              ))}
-              <input
-                type="color"
-                value={settings.eventColor}
-                onChange={e => updateSetting('eventColor', e.target.value)}
-                title="自訂顏色"
-                style={{ width: 28, height: 28, padding: 0, border: 'none', borderRadius: 4, cursor: 'pointer', backgroundColor: 'transparent' }}
-              />
-            </div>
           </div>
 
           {/* 標題欄位 */}
