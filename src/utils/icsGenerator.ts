@@ -136,7 +136,7 @@ const buildTitle = (course: CourseInfo, settings: ExportSettings): string => {
   const parts: string[] = [];
   for (const { field, enabled } of settings.titleFields) {
     if (!enabled) continue;
-    const value = field === 'location' ? course.location
+    const value = field === 'location' ? course.classroomCode
       : field === 'courseName' ? course.courseName
       : field === 'className' ? course.className
       : field === 'teacher' ? course.teacher
