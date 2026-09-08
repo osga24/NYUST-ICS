@@ -47,14 +47,16 @@ function isNoClass(summary) {
 }
 
 // ICS 全天事件的 DTEND 是 exclusive（隔天），展開成每日日期字串
+// 用 UTC midnight 解析，避免 +08:00 → toISOString() 造成日期倒退一天
 function expandDates(dtstart, dtend) {
+  const toUTC = s => new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T00:00:00Z`);
   const dates = [];
-  const start = new Date(`${dtstart.slice(0,4)}-${dtstart.slice(4,6)}-${dtstart.slice(6,8)}T00:00:00+08:00`);
-  const end   = new Date(`${dtend.slice(0,4)}-${dtend.slice(4,6)}-${dtend.slice(6,8)}T00:00:00+08:00`);
+  const start = toUTC(dtstart);
+  const end   = toUTC(dtend);
   const cur = new Date(start);
   while (cur < end) {
     dates.push(cur.toISOString().slice(0, 10));
-    cur.setDate(cur.getDate() + 1);
+    cur.setUTCDate(cur.getUTCDate() + 1);
   }
   if (dates.length === 0) dates.push(start.toISOString().slice(0, 10));
   return dates;
